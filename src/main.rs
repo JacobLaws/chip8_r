@@ -1,0 +1,10 @@
+const VIDEO_WIDTH : u16 = 64;
+const VIDEO_HEIGHT: u16 = 32;
+
+const DISPLAY_SCALE  : u16 = 20;
+const DISPLAY_WIDTH  : u16 = VIDEO_WIDTH  * VIDEO_SCALE;
+const DISPLAY_HEIGHT : u16 = VIDEO_HEIGHT * VIDEO_SCALE;
+
+fn main() {
+
+}
