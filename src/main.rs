@@ -1,3 +1,5 @@
+extern crate sdl2;
+
 mod chip8;
 mod opcodes;
 use chip8::*;
