@@ -1,16 +1,20 @@
 extern crate sdl2;
-
 mod chip8;
-mod opcodes;
-use chip8::*;
 
+use std::{env, fs, time::Duration};
+use chip8::Chip8;
 
-const VIDEO_WIDTH : u16 = 64;
-const VIDEO_HEIGHT: u16 = 32;
+use sdl2::pixels::Color;
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+use sdl2::render::{WindowCanvas, Texture};
 
-const DISPLAY_SCALE : u16 = 20;
-const DISPLAY_WIDTH : u16 = VIDEO_WIDTH  * DISPLAY_SCALE;
-const DISPLAY_HEIGHT: u16 = VIDEO_HEIGHT * DISPLAY_SCALE;
+const VIDEO_WIDTH : u32 = 64;
+const VIDEO_HEIGHT: u32 = 32;
+
+const DISPLAY_SCALE : u32 = 20;
+const DISPLAY_WIDTH : u32 = VIDEO_WIDTH  * DISPLAY_SCALE;
+const DISPLAY_HEIGHT: u32 = VIDEO_HEIGHT * DISPLAY_SCALE;
 
 const FONT_SET: [u8; 80] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -32,7 +36,55 @@ const FONT_SET: [u8; 80] = [
 ];
 
 fn main() {
-    let mut chip8 = Chip8::init_chip8(FONT_SET);
+    let args: Vec<String> = env::args().collect();
 
+    let _query    = &args[1];
+    let filename = &args[2];
 
+    let rom = fs::read(filename)
+        .expect("The rom could not be read.");
+
+    let mut chip8 = Chip8::init_chip8(FONT_SET, rom);
+
+    let sdl_context = sdl2::init().unwrap();
+    let video_subsystem = sdl_context.video().unwrap();
+
+    let window = video_subsystem.window(
+        "Chip8 Interpreter by Jacob Laws",DISPLAY_WIDTH, DISPLAY_HEIGHT)
+        .position_centered()
+        .build()
+        .unwrap();
+    let mut canvas = window.into_canvas().build().unwrap();
+
+    canvas.set_draw_color(Color::RGB(0, 0, 0));
+    canvas.clear();
+    canvas.present();
+
+    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut i: u32= 0;
+
+    'running: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit {..} | Event::KeyDown { keycode: Some(Keycode::Escape), ..} => {
+                    break 'running
+                },
+                _ => {}
+            }
+
+            render(&mut canvas, Color::RGB(255, 255, 255), &texture);
+
+            canvas.present();
+            std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        }
+    }
+}
+
+fn render(canvas: &mut WindowCanvas, color: Color, texture: &texture) -> Result<(), String> {
+    canvas.set_draw_color(color);
+    canvas.clear();
+
+    canvas.copy(texture, None, None);
+    canvas.present();
+    Ok(())
 }

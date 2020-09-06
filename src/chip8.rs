@@ -1,3 +1,6 @@
+pub mod opcodes;
+
+#[allow(dead_code)]
 pub struct Chip8 {
     memory   : [u8; 4096],
     registers: [u8; 16],
@@ -15,9 +18,9 @@ pub struct Chip8 {
 }
 
 impl Chip8 {
-    pub fn init_chip8(font_set: [u8; 80]) -> Self {
+    pub fn init_chip8(font_set: [u8; 80], rom: Vec<u8>) -> Self {
         Self {
-            memory   : Self::init_memory(font_set),
+            memory   : Self::init_memory(font_set, rom),
             registers: [0; 16],
             stack    : [0; 16],
             video    : [0; 2048],
@@ -33,12 +36,19 @@ impl Chip8 {
         }
     }
 
-    fn init_memory(font_set: [u8; 80]) -> [u8; 4096] {
+    fn init_memory(font_set: [u8; 80], rom: Vec<u8>) -> [u8; 4096] {
         let mut memory: [u8; 4096] = [0; 4096];
 
+        // Load the fontset into memory
         for i in 0..80 {
             memory[0x50 + i] = font_set[i];
         }
+
+        // Load the rom into memory
+        for i in 0..rom.len() {
+            memory[512 + i] = rom[i];
+        }
+        println!("{:?} has been loaded into memory", rom);
         memory
     }
 }
